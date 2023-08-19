@@ -1,0 +1,164 @@
+package Telas;
+
+import java.awt.EventQueue;
+import java.sql.*;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import Conexao.ModuloConexao;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+import javax.swing.JTextField;
+import javax.swing.JPasswordField;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import java.awt.Color;
+import javax.swing.ImageIcon;
+import java.awt.Font;
+import java.awt.Cursor;
+import javax.swing.UIManager;
+import java.awt.Component;
+
+public class TelaLogin extends JFrame {
+	Connection conexao = null;
+	PreparedStatement pst = null;
+	ResultSet rs = null;
+
+	public void logar() {
+		 String email = txtEmail.getText();
+         String senha = new String(txtSenha.getPassword());
+
+		String sql = "select * from tbusuarios where email =? and senha =?";
+		try {
+			// as linhas abaixo preparam a consulta ao banco em função do que foi digitado nas caixas de texto
+			// o ? é substituido pelo contaudo das variaveis
+			pst = conexao.prepareStatement(sql);
+			pst.setString(1, email);
+			String captura = new String(senha);
+			pst.setString(2, captura);
+			 // Preparar e executar a consulta para recuperar a imagem como uma string
+			// a linha abaixo executa a query, faz a pesquisa no banco de dados
+			rs = pst.executeQuery();
+			// se existir um usuario e senha correspondente
+			if (rs.next()) {
+				String usuario = rs.getString("usuario");
+				String foto = rs.getString("CaminhoFoto");
+				TelaPrincipal principal = new TelaPrincipal(usuario,email, senha, foto);
+				principal.setVisible(true);
+				principal.setLocationRelativeTo(null);
+				principal.getLblUsuario().setText(rs.getString(2));
+				this.dispose();
+				conexao.close();
+			} else {
+				JOptionPane.showMessageDialog(null, "Usuário e/ou senha inválidos");
+			}
+
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+	}
+
+	private JPanel contentPane;
+	private JTextField txtEmail;
+	private JPasswordField txtSenha;
+
+	/**
+	 * Launch the application.
+	 */
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					TelaLogin frame = new TelaLogin();
+					frame.setVisible(true);
+					frame.setLocationRelativeTo(null);
+
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+
+	/**
+	 * Create the frame.
+	 */
+	public TelaLogin() {
+		setForeground(new Color(255, 255, 255));
+		conexao = ModuloConexao.conector();
+		// linha de apoio a status da conexao
+		// System.out.println(conexao);
+
+		setResizable(false);
+		setTitle("Sistema De Login");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 1024, 768);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+
+		JButton btnLogin = new JButton("Login");
+		btnLogin.setAlignmentY(Component.BOTTOM_ALIGNMENT);
+		btnLogin.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		btnLogin.setForeground(new Color(255, 255, 255));
+		btnLogin.setBorder(null);
+		btnLogin.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 12));
+		btnLogin.setBackground(new Color(255, 69, 0));
+		btnLogin.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// chamando o metodo logar
+				logar();
+			}
+		});
+		btnLogin.setBounds(709, 477, 122, 30);
+		contentPane.add(btnLogin);
+
+		txtSenha = new JPasswordField();
+		txtSenha.setBackground(UIManager.getColor("Button.light"));
+		txtSenha.setBorder(null);
+		txtSenha.setBounds(629, 413, 267, 23);
+		contentPane.add(txtSenha);
+
+		txtEmail = new JTextField();
+		txtEmail.setBackground(UIManager.getColor("Button.light"));
+		txtEmail.setBorder(null);
+		txtEmail.setBounds(629, 328, 267, 23);
+		contentPane.add(txtEmail);
+		txtEmail.setColumns(10);
+
+		JLabel lblStatus = new JLabel("Status");
+		lblStatus.setBounds(28, 652, 105, 14);
+		contentPane.add(lblStatus);
+
+		JButton btnConta = new JButton("Criar conta");
+		btnConta.setBorder(null);
+		btnConta.setForeground(new Color(255, 255, 255));
+		btnConta.setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+		btnConta.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// chamando a tela Conta
+				TelaCadastro conta = new TelaCadastro();
+				conta.setVisible(true);
+			}
+		});
+		btnConta.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 12));
+		btnConta.setBackground(new Color(255, 69, 0));
+		btnConta.setBounds(150, 320, 133, 37);
+		contentPane.add(btnConta);
+
+		JLabel fundo = new JLabel("");
+		fundo.setIcon(new ImageIcon(
+				"C:\\Users\\laris\\OneDrive\\Documentos\\Imagens projeto\\Blue Modern Transport Login Page Wireframe Tablet UI Prototype (4).png"));
+		fundo.setBounds(0, 0, 1008, 729);
+		contentPane.add(fundo);
+
+		if (conexao != null) {
+			lblStatus.setText("Conectado");
+		} else {
+			lblStatus.setText("Não conectado");
+		}
+	}
+}

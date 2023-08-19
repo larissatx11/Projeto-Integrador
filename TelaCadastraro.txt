@@ -1,0 +1,226 @@
+package Telas;
+import java.awt.EventQueue;
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+
+import Conexao.ModuloConexao;
+
+import java.sql.*;
+
+import javax.swing.JOptionPane;
+import javax.swing.JLabel;
+import javax.swing.JTextField;
+import javax.swing.JButton;
+import javax.swing.JFileChooser;
+import java.awt.event.ActionListener;
+import java.io.File;
+import java.awt.event.ActionEvent;
+import javax.swing.ImageIcon;
+import java.awt.Cursor;
+import javax.swing.UIManager;
+import java.awt.Font;
+import java.awt.HeadlessException;
+import java.awt.Image;
+import java.awt.Color;
+
+
+public class TelaCadastro extends JFrame {
+	Connection conexao = null;
+	PreparedStatement pst = null;
+	ResultSet rs = null;
+
+	private JPanel contentPane;
+	public TelaCadastro(JTextField txtUsu, JTextField txtSen, JTextField txtEmail, JTextField txtFoto) throws HeadlessException {
+		super();
+		this.txtUsu = txtUsu;
+		this.txtSen = txtSen;
+		this.txtEmail = txtEmail;
+		this.txtFoto = txtFoto;
+	}
+	
+	private JTextField txtUsu,txtSen,txtEmail, txtFoto;
+
+	public static void main(String[] args) {
+		EventQueue.invokeLater(new Runnable() {
+			public void run() {
+				try {
+					TelaCadastro frame = new TelaCadastro();
+					frame.setVisible(true);
+				} catch (Exception e) {
+					e.printStackTrace();
+				}
+			}
+		});
+	}
+	
+	// método para adicionar usuários
+	private void adicionar() {
+		 String usuario = txtUsu.getText();
+         String email = txtEmail.getText();
+         String senha = new String(txtSen.getText());
+         String foto = txtFoto.getText();
+
+		String sql = "insert into tbusuarios(usuario,email,senha, CaminhoFoto) values(?,?,?,?)";
+		try {
+			pst = conexao.prepareStatement(sql);
+			pst.setString(1, usuario);
+			pst.setString(2, email);
+			pst.setString(3, senha);
+			pst.setString(4, foto);
+			int adicionado = pst.executeUpdate();
+			txtUsu.setText("");
+            txtEmail.setText("");
+            txtSen.setText("");
+            txtFoto.setText("");
+            
+			//a estrutura abaixo é usada para confirmar a inserção dos dados na tabela
+			if(adicionado>0) {
+				JOptionPane.showMessageDialog(null, "Usuário adicionado com sucesso!");
+				TelaLogin login = new TelaLogin();
+				login.setVisible(true);
+				login.setLocationRelativeTo(null); 
+				this.dispose();
+				conexao.close();
+			}	
+			
+		} catch (Exception e) {
+			JOptionPane.showMessageDialog(null, e);
+		}
+	}
+	
+	/**
+	 * Create the frame.
+	 */
+	public TelaCadastro() {
+		
+		conexao = ModuloConexao.conector();
+		
+		setResizable(false);
+		setTitle("Criação de Conta");
+		setDefaultCloseOperation(JFrame.DISPOSE_ON_CLOSE);
+		setBounds(100, 100, 1024, 768);
+		setLocationRelativeTo(null);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+		JLabel lbADDFoto = new JLabel("");
+		lbADDFoto.setBounds(673, 299, 156, 135);
+		contentPane.add(lbADDFoto);
+		
+		JButton btnADD = new JButton("ADD IMAGEM");
+		btnADD.setBounds(561, 498, 113, 23);
+		contentPane.add(btnADD);
+		btnADD.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+					
+					JFileChooser arquivo = new JFileChooser();
+					arquivo.setDialogTitle("SELECIONE UMA IMAGEM");
+					// a linha abaixo seleciona apenas uma imagem
+					arquivo.setFileSelectionMode(JFileChooser.FILES_ONLY);					
+					int op = arquivo.showOpenDialog(null);					
+					if(op == JFileChooser.APPROVE_OPTION) {
+				                File selectedFile = arquivo.getSelectedFile();
+				                txtFoto.setText(selectedFile.getAbsolutePath());
+				                ImageIcon imageIcon = new ImageIcon(selectedFile.getAbsolutePath());
+				                Image image = imageIcon.getImage().getScaledInstance(155, 135, Image.SCALE_DEFAULT);
+				                imageIcon = new ImageIcon(image);
+				                lbADDFoto.setIcon(imageIcon);
+				                
+					}else if(op == JFileChooser.CANCEL_OPTION) {
+					System.out.println("No Data");
+				}
+			}			
+		});
+		
+		JPanel panel = new JPanel();
+		panel.setBounds(673, 299, 156, 135);
+		contentPane.add(panel);
+		panel.setLayout(null);
+		
+		txtUsu = new JTextField();
+		txtUsu.setBorder(null);
+		txtUsu.setBackground(UIManager.getColor("Button.light"));
+		txtUsu.setCursor(Cursor.getPredefinedCursor(Cursor.TEXT_CURSOR));
+		txtUsu.setBounds(118, 290, 287, 31);
+		contentPane.add(txtUsu);
+		txtUsu.setColumns(10);
+		
+		JButton btnCriar = new JButton("CADASTRAR");
+		btnCriar.setForeground(new Color(255, 255, 255));
+		btnCriar.setBackground(new Color(255, 127, 80));
+		btnCriar.setFont(new Font("Arial Rounded MT Bold", Font.PLAIN, 11));
+		btnCriar.setBorder(null);
+		btnCriar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				// chamando o metodo adicionar
+				adicionar();
+			}
+		});
+		
+		
+		btnCriar.setBounds(436, 602, 141, 39);
+		contentPane.add(btnCriar);
+		
+		txtSen = new JTextField();
+		txtSen.setBackground(UIManager.getColor("Button.light"));
+		txtSen.setBorder(null);
+		txtSen.setBounds(118, 461, 287, 31);
+		contentPane.add(txtSen);
+		txtSen.setColumns(10);
+		
+		txtEmail = new JTextField();
+		txtEmail.setBackground(UIManager.getColor("Button.light"));
+		txtEmail.setBorder(null);
+		txtEmail.setBounds(118, 375, 287, 31);
+		contentPane.add(txtEmail);
+		txtEmail.setColumns(10);
+		
+		txtFoto = new JTextField();
+		txtFoto.setBounds(684, 498, 240, 23);
+		contentPane.add(txtFoto);
+		txtFoto.setColumns(10);
+		
+		JLabel lblNewLabel_4 = new JLabel("");
+		lblNewLabel_4.setIcon(new ImageIcon(TelaCadastro.class.getResource("/Icones/Imagem_Cadastro.png")));
+		lblNewLabel_4.setBounds(0, 0, 1008, 729);
+		contentPane.add(lblNewLabel_4);
+	
+	}
+
+	public JTextField getTxtUsu() {
+		return txtUsu;
+	}
+
+	public void setTxtUsu(JTextField txtUsu) {
+		this.txtUsu = txtUsu;
+	}
+
+	public JTextField getTxtSen() {
+		return txtSen;
+	}
+
+	public void setTxtSen(JTextField txtSen) {
+		this.txtSen = txtSen;
+	}
+
+	public JTextField getTxtEmail() {
+		return txtEmail;
+	}
+
+	public void setTxtEmail(JTextField txtEmail) {
+		this.txtEmail = txtEmail;
+	}
+
+	public JTextField getTxtFoto() {
+		return txtFoto;
+	}
+
+	public void setTxtFoto(JTextField txtFoto) {
+		this.txtFoto = txtFoto;
+	}
+	
+}

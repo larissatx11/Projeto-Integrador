@@ -1,0 +1,172 @@
+package Telas;
+
+import java.awt.EventQueue;
+
+import javax.swing.JFrame;
+import javax.swing.JPanel;
+import javax.swing.border.EmptyBorder;
+import javax.swing.JLabel;
+import javax.swing.JOptionPane;
+
+import java.awt.Font;
+import java.awt.HeadlessException;
+import java.awt.Image;
+
+import javax.swing.ImageIcon;
+import javax.swing.JButton;
+import java.awt.event.ActionListener;
+import java.awt.event.ActionEvent;
+import javax.swing.SwingConstants;
+
+public class TelaEditarConta extends JFrame {
+
+	private JPanel contentPane;
+	private String usuario, foto, email, senha;
+	private TelaPrincipal principal;
+	private JLabel lblFotoPerfil;
+	private JButton btnNewButton_1;
+
+	public void setTelaPrincipal(TelaPrincipal principal) {
+		this.principal = principal;
+	}
+	
+	public TelaEditarConta(String usuario, String foto, String email, String senha){
+		this.usuario = usuario;
+		this.foto = foto;
+		this.email = email;
+		this.senha = senha;
+
+		setTitle("Perfil");
+		setDefaultCloseOperation(JFrame.EXIT_ON_CLOSE);
+		setBounds(100, 100, 407, 390);
+		contentPane = new JPanel();
+		contentPane.setBorder(new EmptyBorder(5, 5, 5, 5));
+   		setLocationRelativeTo(null);
+
+		setContentPane(contentPane);
+		contentPane.setLayout(null);
+		
+
+		JPanel panel = new JPanel();
+		panel.setBounds(126, 49, 133, 119);
+		contentPane.add(panel);
+		
+		ImageIcon imageIcon = new ImageIcon(foto);
+		Image imagem = imageIcon.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT);
+		imageIcon = new ImageIcon(imagem);
+		lblFotoPerfil = new JLabel(imageIcon);
+		lblFotoPerfil.setBounds(0, 119, 133, -119);
+		contentPane.setLayout(null);
+		panel.add(lblFotoPerfil);
+		
+		TelaEditarConta edit = this;
+		JButton btnEditar = new JButton("Editar Conta");
+		btnEditar.setBounds(118, 257, 141, 23);
+		btnEditar.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TelaAtualizar atualizar = new TelaAtualizar(usuario, email, senha, foto);
+				atualizar.setTelaEditarConta(edit);
+				setLocationRelativeTo(null);
+				atualizar.setVisible(true);
+			}
+		});
+		contentPane.add(btnEditar);
+		
+		
+		JButton btnNewButton = new JButton("Deletar Conta");
+		btnNewButton.setBounds(118, 304, 141, 23);
+		btnNewButton.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				int sair = JOptionPane.showConfirmDialog(null, "Tem certeza que deseja deletar a conta?", "Atenção", JOptionPane.YES_NO_OPTION);
+				if (sair == JOptionPane.YES_OPTION) {
+				TelaAtualizar atualizar = new TelaAtualizar(usuario, email, senha, foto);
+				atualizar.Deletar();
+				atualizar.setLocationRelativeTo(null);
+				TelaLogin login = new TelaLogin();
+				login.setVisible(true);
+				login.setLocationRelativeTo(null);
+				TelaPrincipal principal = new TelaPrincipal(usuario, email, senha, foto);
+				principal.dispose();
+				}
+				
+			}
+		});
+		contentPane.add(btnNewButton);
+		
+		JLabel lblNome = new JLabel(usuario);
+		lblNome.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblNome.setHorizontalAlignment(SwingConstants.CENTER);
+		lblNome.setBounds(84, 191, 215, 14);
+		contentPane.add(lblNome);
+		
+		JLabel lblEmail = new JLabel(email);
+		lblEmail.setHorizontalTextPosition(SwingConstants.CENTER);
+		lblEmail.setHorizontalAlignment(SwingConstants.CENTER);
+		lblEmail.setBounds(67, 216, 244, 14);
+		contentPane.add(lblEmail);
+	
+		
+	}
+
+
+public String getUsuario() {
+	return usuario;
+}
+
+public void setUsuario(String usuario) {
+	this.usuario = usuario;
+}
+
+public String getFoto() {
+	return foto;
+}
+
+public void setFoto(String foto) {
+	this.foto = foto;
+	ImageIcon fotoPerfil = new ImageIcon(foto);
+	Image image = fotoPerfil.getImage().getScaledInstance(100, 100, Image.SCALE_DEFAULT);
+	fotoPerfil = new ImageIcon(image);
+	lblFotoPerfil.setIcon(fotoPerfil);
+}
+
+public String getEmail() {
+	return email;
+}
+
+public void setEmail(String email) {
+	this.email = email;
+}
+
+public String getSenha() {
+	return senha;
+}
+
+public void setSenha(String senha) {
+	this.senha = senha;
+}
+
+public TelaPrincipal getPrincipal() {
+	return principal;
+}
+
+public void setPrincipal(TelaPrincipal principal) {
+	this.principal = principal;
+}
+	
+public static void main(String[] args) {
+	EventQueue.invokeLater(new Runnable() {
+		public void run() {
+			try {
+			    String usuario = "user123";
+			    String foto = "C:\\Users\\laris\\OneDrive\\Imagens\\Capturas de tela\\2022-11-18 (5).png";
+			    String email = "user@gmail.com";
+			    String senha = "12345";
+				TelaEditarConta frame = new TelaEditarConta(usuario, foto, email, senha);
+				frame.setVisible(true);
+			} catch (Exception e) {
+				e.printStackTrace();
+			}
+		}
+	});
+}
+}
